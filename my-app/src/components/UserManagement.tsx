@@ -30,11 +30,34 @@ export default function UserManagement() {
   const [filterRole, setFilterRole] = useState<string>('')
   const [filterStatus, setFilterStatus] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
 
   const addUser = () => {
+    const errors: { [key: string]: string } = {}
+
+    if (!newUser.name.trim()) {
+      errors.name = 'Name is required'
+    }
+
+    if (!newUser.email.trim()) {
+      errors.email = 'Email is required'
+    } else if (!/\S+@\S+\.\S+/.test(newUser.email)) {
+      errors.email = 'Email is invalid'
+    }
+
+    if (!newUser.role) {
+      errors.role = 'Role is required'
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+
     setUsers([...users, { ...newUser, id: users.length + 1 }])
     setNewUser({ name: '', email: '', role: '', status: 'Active' })
     setIsAddUserOpen(false)
+    setFormErrors({})
   }
 
   const deleteUser = (id: number) => {
@@ -72,11 +95,11 @@ export default function UserManagement() {
   }, [users, sortField, sortDirection, filterRole, filterStatus, searchTerm])
 
   return (
-    <div>
+    <div className="text-gray-300">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Users</h2>
+        <h2 className="text-2xl font-semibold text-white">Users</h2>
         <button
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           onClick={() => setIsAddUserOpen(true)}
         >
           Add User
@@ -87,14 +110,14 @@ export default function UserManagement() {
           <input
             type="text"
             placeholder="Search users..."
-            className="pl-10 pr-4 py-2 border rounded-md"
+            className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
         <select
-          className="border rounded-md px-4 py-2"
+          className="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white"
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
         >
@@ -104,7 +127,7 @@ export default function UserManagement() {
           <option value="Viewer">Viewer</option>
         </select>
         <select
-          className="border rounded-md px-4 py-2"
+          className="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
@@ -114,13 +137,13 @@ export default function UserManagement() {
         </select>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white">
-          <thead className="bg-gray-100">
+        <table className="min-w-full bg-gray-800">
+          <thead className="bg-gray-700">
             <tr>
               {(['name', 'email', 'role', 'status'] as const).map((field) => (
                 <th
                   key={field}
-                  className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort(field)}
                 >
                   <div className="flex items-center">
@@ -131,31 +154,31 @@ export default function UserManagement() {
                   </div>
                 </th>
               ))}
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-700">
             {filteredAndSortedUsers.map((user) => (
-              <tr key={user.id}>
-                <td className="py-4 px-4 text-sm text-gray-900">{user.name}</td>
-                <td className="py-4 px-4 text-sm text-gray-500">{user.email}</td>
-                <td className="py-4 px-4 text-sm text-gray-500">{user.role}</td>
+              <tr key={user.id} className="bg-gray-800 hover:bg-gray-700">
+                <td className="py-4 px-4 text-sm text-gray-300">{user.name}</td>
+                <td className="py-4 px-4 text-sm text-gray-300">{user.email}</td>
+                <td className="py-4 px-4 text-sm text-gray-300">{user.role}</td>
                 <td className="py-4 px-4 text-sm">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    user.status === 'Active' ? 'bg-green-800 text-green-100' : 'bg-red-800 text-red-100'
                   }`}>
                     {user.status}
                   </span>
                 </td>
                 <td className="py-4 px-4 text-sm font-medium">
                   <button
-                    className="text-indigo-600 hover:text-indigo-900 mr-2"
+                    className="text-blue-400 hover:text-blue-300 mr-2"
                     onClick={() => toggleUserStatus(user.id)}
                   >
                     {user.status === 'Active' ? 'Deactivate' : 'Activate'}
                   </button>
                   <button
-                    className="text-red-600 hover:text-red-900"
+                    className="text-red-400 hover:text-red-300"
                     onClick={() => deleteUser(user.id)}
                   >
                     Delete
@@ -167,27 +190,29 @@ export default function UserManagement() {
         </table>
       </div>
       {isAddUserOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" onClick={() => setIsAddUserOpen(false)}>
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full" onClick={() => setIsAddUserOpen(false)}>
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-gray-800" onClick={e => e.stopPropagation()}>
             <div className="mt-3 text-center">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Add New User</h3>
+              <h3 className="text-lg leading-6 font-medium text-white">Add New User</h3>
               <div className="mt-2 px-7 py-3">
                 <input
                   type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className={`mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white placeholder-gray-400 ${formErrors.name ? 'border-red-500' : ''}`}
                   placeholder="Name"
                   value={newUser.name}
                   onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                 />
+                {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                 <input
                   type="email"
-                  className="mt-3 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className={`mt-3 block w-full rounded-md bg-gray-700 border-gray-600 text-white placeholder-gray-400 ${formErrors.email ? 'border-red-500' : ''}`}
                   placeholder="Email"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                 />
+                {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
                 <select
-                  className="mt-3 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className={`mt-3 block w-full rounded-md bg-gray-700 border-gray-600 text-white ${formErrors.role ? 'border-red-500' : ''}`}
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                 >
@@ -196,10 +221,11 @@ export default function UserManagement() {
                   <option value="Editor">Editor</option>
                   <option value="Viewer">Viewer</option>
                 </select>
+                {formErrors.role && <p className="text-red-500 text-xs mt-1">{formErrors.role}</p>}
               </div>
               <div className="items-center px-4 py-3">
                 <button
-                  className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   onClick={addUser}
                 >
                   Add User
