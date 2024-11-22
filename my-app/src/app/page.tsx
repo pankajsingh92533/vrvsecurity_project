@@ -1,9 +1,8 @@
-import Image from "next/image";
-
+import RBACDashboard from '../components/RBACDashboard'
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-center">This is Home page</h1>
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-between p-6 bg-gray-100">
+    <RBACDashboard />
+    </main>
   );
 }
