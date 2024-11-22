@@ -17,6 +17,7 @@ const initialUsers: User[] = [
   { id: 3, name: 'Rishi Raj', email: 'rishi@example.com', role: 'Viewer', status: 'Inactive' },
   { id: 4, name: 'Radhey', email: 'radhey@example.com', role: 'Editor', status: 'Active' },
   { id: 5, name: 'Mudit Yadav', email: 'mudit@example.com', role: 'Viewer', status: 'Inactive' },
+  
 ]
 
 type SortField = 'name' | 'email' | 'role' | 'status'
